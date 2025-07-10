@@ -2,10 +2,12 @@ export interface Player {
   id: string
   name: string
   image: string
+  faceImage: string // Nova propriedade para foto do rosto
   ranking: number
   titles: number
   wins: number
   losses: number
+  age: number // Nova propriedade para idade
   rarity: "comum" | "raro" | "épico"
 }
 

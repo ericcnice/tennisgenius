@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import type { Player } from "@/lib/types"
 import Image from "next/image"
@@ -8,9 +10,10 @@ import { cn } from "@/lib/utils"
 interface PlayerCardProps {
   player: Player
   locked: boolean
+  onClick?: () => void // Nova propriedade
 }
 
-export function PlayerCard({ player, locked }: PlayerCardProps) {
+export function PlayerCard({ player, locked, onClick }: PlayerCardProps) {
   const rarityColors = {
     comum: "bg-gray-100 text-gray-800",
     raro: "bg-blue-100 text-blue-800",
@@ -18,7 +21,13 @@ export function PlayerCard({ player, locked }: PlayerCardProps) {
   }
 
   return (
-    <Card className={cn("overflow-hidden transition-all", locked ? "grayscale" : "hover:shadow-md hover:scale-[1.02]")}>
+    <Card
+      className={cn(
+        "overflow-hidden transition-all cursor-pointer",
+        locked ? "grayscale" : "hover:shadow-md hover:scale-[1.02]",
+      )}
+      onClick={!locked ? onClick : undefined}
+    >
       <div className="relative">
         <div className="relative h-48 w-full">
           <Image src={player.image || "/placeholder.svg"} alt={player.name} fill className="object-cover" />

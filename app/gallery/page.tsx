@@ -1,15 +1,45 @@
 "use client"
 
+import { useState } from "react"
 import { AppHeader } from "@/components/app-header"
 import { PlayerCard } from "@/components/player-card"
+import { PlayerCardModal } from "@/components/player-card-modal"
 import { useTennisGenius } from "@/lib/tennis-genius-context"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useRouter } from "next/navigation"
+import type { Player } from "@/lib/types"
 
 export default function GalleryPage() {
   const { collectedCards, lockedCards } = useTennisGenius()
   const router = useRouter()
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCardClick = (player: Player) => {
+    setSelectedPlayer(player)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedPlayer(null)
+  }
+
+  const handleNavigation = (direction: "prev" | "next") => {
+    if (!selectedPlayer) return
+
+    const currentIndex = collectedCards.findIndex((card) => card.id === selectedPlayer.id)
+    let newIndex
+
+    if (direction === "prev") {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : collectedCards.length - 1
+    } else {
+      newIndex = currentIndex < collectedCards.length - 1 ? currentIndex + 1 : 0
+    }
+
+    setSelectedPlayer(collectedCards[newIndex])
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
@@ -35,7 +65,7 @@ export default function GalleryPage() {
           <TabsContent value="collected">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {collectedCards.map((card) => (
-                <PlayerCard key={card.id} player={card} locked={false} />
+                <PlayerCard key={card.id} player={card} locked={false} onClick={() => handleCardClick(card)} />
               ))}
               {collectedCards.length === 0 && (
                 <div className="col-span-full py-8 text-center text-gray-500">
@@ -53,6 +83,16 @@ export default function GalleryPage() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Modal de card em tela cheia */}
+        <PlayerCardModal
+          player={selectedPlayer}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onPrevious={collectedCards.length > 1 ? () => handleNavigation("prev") : undefined}
+          onNext={collectedCards.length > 1 ? () => handleNavigation("next") : undefined}
+          showNavigation={collectedCards.length > 1}
+        />
       </main>
     </div>
   )
